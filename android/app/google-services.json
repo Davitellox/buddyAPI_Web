@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "833901646451",
+    "project_id": "buddy-ai-c8f1d",
+    "storage_bucket": "buddy-ai-c8f1d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833901646451:android:5c81bc3506d43a61dc1006",
+        "android_client_info": {
+          "package_name": "com.example.buddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "833901646451-3g4tdu60ah26hbbdd1nrknbcctn636gr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buddy",
+            "certificate_hash": "d4c835d79ba79fbb8ac132db73b57f0769fdd3d3"
+          }
+        },
+        {
+          "client_id": "833901646451-6rb7bcf18ioef3f0f6evvme15srtte6u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ32xzVND1oNzZ1J3C-y_ry6pTFcbCoHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "833901646451-6rb7bcf18ioef3f0f6evvme15srtte6u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "833901646451-e1crik2spamvmcp4vpehtr4hj2upm6ep.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.buddy"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

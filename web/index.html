@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="buddy">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>buddy</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <!-- ✅ Your Flutter app will render here -->
+  <script src="flutter_bootstrap.js" async></script>
+
+  <!-- ✅ Web Speech Recognition Integration -->
+  <script>
+    window.startSpeechRecognition = function () {
+      console.log("JS: startSpeechRecognition called");
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.log("JS: SpeechRecognition not supported");
+        return Promise.reject('SpeechRecognition not supported in this browser.');
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      return new Promise((resolve, reject) => {
+        recognition.onresult = function (event) {
+          console.log("JS: onresult", event.results);
+          const transcript = event.results[0][0].transcript;
+          resolve(transcript);
+        };
+
+        recognition.onerror = function (event) {
+          console.log("JS: onerror", event);
+          reject(event.error);
+        };
+
+        recognition.onend = function () {
+          console.log("JS: onend");
+        };
+
+        recognition.start();
+        console.log("JS: recognition started");
+      });
+    };
+  </script>
+
+</body>
+</html>

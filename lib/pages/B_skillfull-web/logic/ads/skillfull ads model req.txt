@@ -1,0 +1,8 @@
+imageUrl
+redirectUrl
+show
+title
+userType
+
+
+skillfull ads model req

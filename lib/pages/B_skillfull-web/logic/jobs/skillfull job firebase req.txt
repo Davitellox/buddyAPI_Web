@@ -1,0 +1,11 @@
+title
+price
+location
+isPremiumClient
+description
+deadline
+client
+category
+
+
+skillfull job firebase req
