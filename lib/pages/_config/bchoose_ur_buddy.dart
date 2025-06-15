@@ -695,18 +695,36 @@ class _Choose_Ur_BuddyScreenState extends State<Choose_Ur_BuddyScreen>
 
 //play character preview Audio(
 //),
+  // Future<void> playCharacterPreviewAudio(String characterName) async {
+  //   try {
+  //     final safeName =
+  //         characterName.replaceAll(' ', ''); // e.g. Tony Stark → TonyStark
+  //     final index = Random().nextInt(3); // 0, 1, or 2
+  //     final url =
+  //         'characters/$safeName/intro_audio/${safeName.toLowerCase()}$index.mp3';
+
+  //     print("🎧 Playing: $url");
+
+  //     await _audioPlayer.stop();
+  //     await _audioPlayer.play(UrlSource(url));
+  //   } catch (e) {
+  //     print('⚠️ Error playing audio: $e');
+  //   }
+  // }
+
   Future<void> playCharacterPreviewAudio(String characterName) async {
     try {
       final safeName =
           characterName.replaceAll(' ', ''); // e.g. Tony Stark → TonyStark
       final index = Random().nextInt(3); // 0, 1, or 2
-      final url =
-          'characters/$safeName/intro_audio/${safeName.toLowerCase()}$index.mp3';
 
-      print("🎧 Playing: $url");
+      final assetPath =
+          'assets/characters/$safeName/intro_audio/${safeName.toLowerCase()}$index.mp3';
+
+      print("🎧 Playing: $assetPath");
 
       await _audioPlayer.stop();
-      await _audioPlayer.play(UrlSource(url));
+      await _audioPlayer.play(AssetSource(assetPath));
     } catch (e) {
       print('⚠️ Error playing audio: $e');
     }

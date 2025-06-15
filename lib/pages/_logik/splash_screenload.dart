@@ -89,9 +89,22 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
         if (key == 'uid') continue;
 
         final modelSlug = modelSlugMap[key];
-        final inputList = entry.value;
+        if (modelSlug == null) continue;
 
-        if (modelSlug == null || inputList is! List<String>) continue;
+        List<String> inputList = [];
+
+        if (entry.value is List) {
+          inputList = List<String>.from(entry.value);
+        } else if (entry.value is Map) {
+          inputList =
+              (entry.value as Map).values.map((e) => e.toString()).toList();
+        } else if (entry.value is String) {
+          inputList = [entry.value];
+        } else {
+          debugPrint(
+              "Unsupported input type for key: $key → ${entry.value.runtimeType}");
+          continue;
+        }
 
         try {
           final output = await callGradioModel(
