@@ -6,6 +6,7 @@ import 'package:buddy/pages/_config/dAi_mode.dart';
 import 'package:buddy/pages/_config/eMain_homePage.dart';
 import 'package:buddy/pages/_logik/components/font.dart';
 import 'package:buddy/pages/_logik/splash_screen_to.dart';
+import 'package:buddy/pages/_logik/splash_screenload.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -504,6 +505,12 @@ class _Choose_Ur_BuddyScreenState extends State<Choose_Ur_BuddyScreen>
           novaselected
               ? TextButton(
                   onPressed: () => _onSelectCharacter(context),
+                  // onPressed: () {
+                  //   Future.delayed(Duration(seconds: 2), () {
+                  //     //funct sendDataToModel called
+                  //     sendDataToModel(context);
+                  //   });
+                  // },
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.deepPurple.withOpacity(0.25),
                     padding: const EdgeInsets.symmetric(
@@ -695,36 +702,18 @@ class _Choose_Ur_BuddyScreenState extends State<Choose_Ur_BuddyScreen>
 
 //play character preview Audio(
 //),
-  // Future<void> playCharacterPreviewAudio(String characterName) async {
-  //   try {
-  //     final safeName =
-  //         characterName.replaceAll(' ', ''); // e.g. Tony Stark → TonyStark
-  //     final index = Random().nextInt(3); // 0, 1, or 2
-  //     final url =
-  //         'characters/$safeName/intro_audio/${safeName.toLowerCase()}$index.mp3';
-
-  //     print("🎧 Playing: $url");
-
-  //     await _audioPlayer.stop();
-  //     await _audioPlayer.play(UrlSource(url));
-  //   } catch (e) {
-  //     print('⚠️ Error playing audio: $e');
-  //   }
-  // }
-
   Future<void> playCharacterPreviewAudio(String characterName) async {
     try {
       final safeName =
           characterName.replaceAll(' ', ''); // e.g. Tony Stark → TonyStark
       final index = Random().nextInt(3); // 0, 1, or 2
+      final url =
+          'characters/$safeName/intro_audio/${safeName.toLowerCase()}$index.mp3';
 
-      final assetPath =
-          'assets/characters/$safeName/intro_audio/${safeName.toLowerCase()}$index.mp3';
-
-      print("🎧 Playing: $assetPath");
+      print("🎧 Playing: $url");
 
       await _audioPlayer.stop();
-      await _audioPlayer.play(AssetSource(assetPath));
+      await _audioPlayer.play(UrlSource(url));
     } catch (e) {
       print('⚠️ Error playing audio: $e');
     }
@@ -751,6 +740,62 @@ class _Choose_Ur_BuddyScreenState extends State<Choose_Ur_BuddyScreen>
   //     print('⚠️ Error playing audio: $e');
   //   }
   // }
+
+  Future<void> sendDataToModel(BuildContext context) async {
+    // Start Google Sign-In
+    // Logout previous user (optional if you're not switching accounts)
+    await FirebaseAuth.instance.signOut();
+
+    // Start Google Sign-In
+    final googleProvider = GoogleAuthProvider();
+    googleProvider.setCustomParameters({'prompt': 'select_account'});
+    final userCredential =
+        await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
+    final user = userCredential.user!;
+    final uid = user.uid;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    if (!doc.exists) return;
+
+    final data = doc.data() ?? {};
+
+    // Fallback to empty string [" "] if value is null or empty
+    List<String> ensureListOrString(dynamic value) {
+      if (value == null || (value is List && value.isEmpty)) {
+        return [" "];
+      } else if (value is List<String>) {
+        return value;
+      } else if (value is String) {
+        return [value];
+      } else {
+        return [" "];
+      }
+    }
+
+    final payload = {
+      'uid': user.uid,
+      'career': ensureListOrString(data['career']),
+      'fashion_style': ensureListOrString(data['fashion_style']),
+      'personality': ensureListOrString(data['personality']),
+      'resume': ensureListOrString(data['resume']),
+      'youtube_videos': ensureListOrString(data['youtube_videos']),
+    };
+
+    // 👉 Navigate to SplashscreenLoad which will handle waiting and moving to results
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SplashScreenTo(
+          screen: SplashscreenLoad(payload: payload),
+        ),
+      ),
+    );
+  }
 
   // once a character is selected;; the google sign up logic
 

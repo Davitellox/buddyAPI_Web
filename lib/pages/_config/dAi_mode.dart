@@ -1,14 +1,17 @@
+// Your previous imports here...
 import 'dart:async';
 import 'dart:math';
 import 'dart:html' as html;
 import 'dart:js_util' as js_util;
 import 'package:buddy/pages/_logik/splash_screenload.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:buddy/pages/_logik/splash_screen_to.dart';
 
 class AIMode extends StatefulWidget {
@@ -109,6 +112,7 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
         currentCategory = null;
       });
       Future.delayed(Duration(seconds: 2), () {
+        //funct sendDataToModel called
         sendDataToModel(context);
       });
       return;
@@ -131,12 +135,12 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
     }
 
     final questionFile = 'q$currentQuestionIndex.mp3';
-    final assetPath =
-        'assets/characters/${widget.characterName}/main/$currentCategory/$questionFile';
+    final url =
+        'characters/${widget.characterName}/main/$currentCategory/$questionFile';
 
     try {
       await _player.stop();
-      await _player.play(AssetSource(assetPath));
+      await _player.play(UrlSource(url));
       setState(() {
         currentAudio = questionFile;
         _transcribedText = '';
@@ -157,12 +161,14 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
       );
     });
 
+    // Auto-remove bubble after some time
     Future.delayed(Duration(seconds: 4), () {
       setState(() {
         feedbackBubbles.removeWhere((b) => b.text == feedbackText);
       });
     });
 
+    // Save response to Firestore
     if (_transcribedText.trim().isNotEmpty && currentCategory != null) {
       try {
         final user = FirebaseAuth.instance.currentUser;
@@ -179,6 +185,7 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
       }
     }
 
+    // Go to next question
     setState(() {
       currentQuestionIndex++;
       _micVisible = false;
@@ -209,6 +216,7 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
         js_util.callMethod(html.window, 'startSpeechRecognition', []),
       );
 
+      // Wait for either result or manual stop
       final result = await Future.any([
         resultFuture,
         _webListeningCompleter!.future.then((_) => throw 'Stopped manually'),
@@ -234,7 +242,7 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
     if (_isListening &&
         _webListeningCompleter != null &&
         !_webListeningCompleter!.isCompleted) {
-      _webListeningCompleter!.complete();
+      _webListeningCompleter!.complete(); // Cancel recognition
     }
   }
 
@@ -290,6 +298,7 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
 
     final data = doc.data() ?? {};
 
+    // Fallback to empty string [" "] if value is null or empty
     List<String> ensureListOrString(dynamic value) {
       if (value == null || (value is List && value.isEmpty)) {
         return [" "];
@@ -311,6 +320,7 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
       'youtube_videos': ensureListOrString(data['youtube_videos']),
     };
 
+    // 👉 Navigate to SplashscreenLoad which will handle waiting and moving to results
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -339,18 +349,26 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("BUddy AI 🤖",
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurpleAccent)),
+                Text(
+                  "BUddy AI 🤖",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                ),
                 SizedBox(height: 10),
-                Text("Made with Trae AI 🤖",
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey)),
+                Text(
+                  "Made with Trae AI 🤖",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
                 SizedBox(height: 40),
+
+                /// Siri-style glowing animated circle
                 AnimatedContainer(
                   duration: Duration(milliseconds: 500),
                   width: _isListening ? 200 : 120,
@@ -378,11 +396,21 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
                         color: Colors.white.withOpacity(0.9), size: 40),
                   ),
                 ),
+
                 SizedBox(height: 40),
+                // Text(
+                //   "Category: $currentCategory\n"
+                //   "${currentAudio != null ? "Now Playing: $currentAudio" : "Loading..."}",
+                //   textAlign: TextAlign.center,
+                //   style: TextStyle(color: Colors.white70),
+                // ),
+                // SizedBox(height: 16),
                 if (_transcribedText.isNotEmpty)
-                  Text("🗣️ You said: $_transcribedText",
-                      style: TextStyle(color: Colors.greenAccent),
-                      textAlign: TextAlign.center),
+                  Text(
+                    "🗣️ You said: $_transcribedText",
+                    style: TextStyle(color: Colors.greenAccent),
+                    textAlign: TextAlign.center,
+                  ),
                 SizedBox(height: 30),
                 if (_micVisible && _speechAvailable)
                   Column(
@@ -400,13 +428,16 @@ class _AIModeState extends State<AIMode> with SingleTickerProviderStateMixin {
                           icon: Icon(Icons.stop),
                           label: Text("Stop"),
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent),
+                            backgroundColor: Colors.redAccent,
+                          ),
                         ),
                     ],
                   ),
               ],
             ),
           ),
+
+          // Glowing bubble feedbacks (unchanged)
           ...feedbackBubbles.map((bubble) => bubble.build(context)),
         ],
       ),
@@ -440,16 +471,20 @@ class _BubbleFeedback {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                  color: Colors.purpleAccent.withOpacity(0.6),
-                  blurRadius: 12,
-                  spreadRadius: 2),
+                color: Colors.purpleAccent.withOpacity(0.6),
+                blurRadius: 12,
+                spreadRadius: 2,
+              )
             ],
           ),
-          child: Text(text,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontStyle: FontStyle.italic)),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ),
       ),
     );

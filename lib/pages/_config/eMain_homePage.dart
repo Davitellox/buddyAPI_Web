@@ -25,62 +25,63 @@ class _MainHomePageState extends State<MainHomePage>
   late List<Widget> _pages;
   int _selectedIndex = 0;
 
-  // final Map<String, dynamic> samplePayload = {
-  //   "buddy": "Alex Johnson",
-  //   "career": [
-  //     {
-  //       "title": "Software Engineer",
-  //       "description": "Build amazing mobile and web apps.",
-  //       "imageUrl":
-  //           "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
-  //     },
-  //     {
-  //       "title": "Product Manager",
-  //       "description": "Lead product development and strategy.",
-  //       "imageUrl":
-  //           "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
-  //     },
-  //   ],
-  //   "fashion_style": [
-  //     {
-  //       "title": "Casual Wear",
-  //       "description": "Comfort meets style.",
-  //       "imageUrl":
-  //           "https://images.unsplash.com/photo-1520975920957-3a8f3675f4ee",
-  //     },
-  //     {
-  //       "title": "Formal Attire",
-  //       "description": "Look sharp for every occasion.",
-  //       "imageUrl":
-  //           "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce",
-  //     }
-  //   ],
-  //   "personality": [
-  //     {
-  //       "text": "Energetic, creative, and highly adaptable.",
-  //       "imageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2"
-  //     }
-  //   ],
-  //   "resume": [
-  //     {
-  //       "text": "Experienced in mobile app development and UI/UX design.",
-  //       "imageUrl":
-  //           "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
-  //     }
-  //   ],
-  //   "youtube_videos": [
-  //     "latest flutter tutorials",
-  //     "fashion styling tips",
-  //     "career advice for developers"
-  //   ]
-  // };
+  final Map<String, dynamic> samplePayload = {
+    "buddy": "Alex Johnson",
+    "career": [
+      {
+        "title": "Software Engineer",
+        "description": "Build amazing mobile and web apps.",
+        "imageUrl":
+            "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
+      },
+      {
+        "title": "Product Manager",
+        "description": "Lead product development and strategy.",
+        "imageUrl":
+            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
+      },
+    ],
+    "fashion_style": [
+      {
+        "title": "Casual Wear",
+        "description": "Comfort meets style.",
+        "imageUrl":
+            "https://images.unsplash.com/photo-1520975920957-3a8f3675f4ee",
+      },
+      {
+        "title": "Formal Attire",
+        "description": "Look sharp for every occasion.",
+        "imageUrl":
+            "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce",
+      }
+    ],
+    "personality": [
+      {
+        "text": "Energetic, creative, and highly adaptable.",
+        "imageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2"
+      }
+    ],
+    "resume": [
+      {
+        "text": "Experienced in mobile app development and UI/UX design.",
+        "imageUrl":
+            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
+      }
+    ],
+    "youtube_videos": [
+      "latest flutter tutorials",
+      "fashion styling tips",
+      "career advice for developers"
+    ]
+  };
 
   @override
   void initState() {
     super.initState();
     _pages = [
       SelfDiscoveryHome(
-        payload: widget.payload,
+        // payload: widget.payload,
+        payload: samplePayload,
       ), //self discovery
       NavSkillful_Intro_or_Home(
         isProfileSetup: false,

@@ -28,6 +28,17 @@
             "firebase.json",
             "**/.*",
             "**/node_modules/**"
-        ]
+        ],
+        "headers": [{
+            "source": "**/*.mp3",
+            "headers": [{
+                "key": "Content-Type",
+                "value": "audio/mpeg"
+            }]
+        }],
+        "rewrites": [{
+            "source": "**",
+            "destination": "/index.html"
+        }]
     }
 }

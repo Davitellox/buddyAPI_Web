@@ -19,6 +19,7 @@ class SplashscreenLoad extends StatefulWidget {
 
 class _SplashscreenLoadState extends State<SplashscreenLoad> {
   String? _error;
+
   final Map<String, String> modelSlugMap = {
     'career': 'Davitello/buddy-career-space',
     'fashion_style': 'Davitello/buddy-fashion-api',
@@ -55,7 +56,7 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
   }) async {
     final url = Uri.parse("https://$modelSlug.hf.space/run/predict");
 
-    const hfToken = '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'; // Your HF token
+    const hfToken = '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';
 
     final body = jsonEncode({
       "data": [inputList]
@@ -81,12 +82,11 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
   Future<void> _fetchAndNavigate() async {
     try {
       final payload = widget.payload;
-      final uid = payload['uid'];
       final results = <String, dynamic>{};
 
       for (final entry in payload.entries) {
         final key = entry.key;
-        if (key == 'uid') continue;
+        if (key == 'uid' || key == 'email' || key == 'registeredAt') continue;
 
         final modelSlug = modelSlugMap[key];
         if (modelSlug == null) continue;
@@ -94,15 +94,19 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
         List<String> inputList = [];
 
         if (entry.value is List) {
-          inputList = List<String>.from(entry.value);
-        } else if (entry.value is Map) {
-          inputList =
-              (entry.value as Map).values.map((e) => e.toString()).toList();
+          inputList = List<String>.from(entry.value
+              .map((e) => e.toString().trim())
+              .where(
+                  (e) => e.isNotEmpty && !e.toLowerCase().contains("error")));
         } else if (entry.value is String) {
-          inputList = [entry.value];
-        } else {
-          debugPrint(
-              "Unsupported input type for key: $key → ${entry.value.runtimeType}");
+          final str = entry.value.toString().trim();
+          if (str.isNotEmpty && !str.toLowerCase().contains("error")) {
+            inputList = [str];
+          }
+        }
+
+        if (inputList.isEmpty) {
+          debugPrint("⚠️ Skipping empty/invalid input for $key");
           continue;
         }
 
@@ -111,7 +115,34 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
             modelSlug: modelSlug,
             inputList: inputList,
           );
-          results[key] = output;
+
+          final List<String> cleanedOutput = List<String>.from(output)
+              .map((e) => e.toString().trim())
+              .where((e) => e.isNotEmpty && !e.toLowerCase().contains("error"))
+              .toList();
+
+          if (key == "career" || key == "fashion_style") {
+            results[key] = cleanedOutput.map((item) {
+              return {
+                "title": item.split(".").first.trim(),
+                "description": item,
+                "imageUrl":
+                    "https://source.unsplash.com/random/?$key&sig=${item.hashCode}"
+              };
+            }).toList();
+          } else if (key == "personality" || key == "resume") {
+            results[key] = cleanedOutput.map((item) {
+              return {
+                "text": item,
+                "imageUrl":
+                    "https://source.unsplash.com/random/?$key&sig=${item.hashCode}"
+              };
+            }).toList();
+          } else if (key == "youtube_videos") {
+            results[key] = cleanedOutput;
+          } else {
+            results[key] = cleanedOutput;
+          }
         } catch (e) {
           results[key] = {
             'error': true,
@@ -119,6 +150,10 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
           };
           debugPrint("⚠️ Model for '$key' failed: $e");
         }
+      }
+
+      if (payload.containsKey('buddy')) {
+        results['buddy'] = payload['buddy'];
       }
 
       await saveResultsToFirestore(results);
@@ -142,16 +177,12 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Set image size based on screen width
     double imageSize;
     if (screenWidth < 600) {
-      // Mobile
       imageSize = 250;
     } else if (screenWidth < 1024) {
-      // Tablet
       imageSize = 400;
     } else {
-      // Laptop/Desktop
       imageSize = 500;
     }
 
@@ -163,8 +194,8 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF1B1B2F), // Deep navy-purple
-              Colors.black, // Rich black
+              Color(0xFF1B1B2F),
+              Colors.black,
             ],
           ),
         ),
@@ -190,10 +221,10 @@ class _SplashscreenLoadState extends State<SplashscreenLoad> {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    BuddyBuildText(),
+                    const BuddyBuildText(),
                     const SizedBox(height: 30),
                     Lottie.asset(
-                      'assets/animations/ai_building.json', // your Lottie animation file
+                      'assets/animation/ai_building.json',
                       width: imageSize,
                       height: imageSize,
                       repeat: true,
@@ -213,6 +244,7 @@ class BuddyBuildText extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 1000;
+
     return AnimatedTextKit(
       animatedTexts: [
         TypewriterAnimatedText(
